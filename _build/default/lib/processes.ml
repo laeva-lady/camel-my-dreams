@@ -35,25 +35,31 @@ let cacheDir = Utils.getPath ()
 let rec update_data_loop (procs : Data.info list) =
   let current_clients : string list = Clients.get_clients () in
   let current_client = !active_window in
-  current_clients
-  |> List.map (fun current_window ->
-    try
-      let matching_window =
-        List.find (fun (proc : Data.info) -> proc#get_name == current_window) procs
-      in
-      matching_window#update_time (Data.new_time 0 0 1) (Data.new_time 0 0 1);
-      matching_window#set_is_active (current_window == current_client);
-      matching_window
-    with
-    | Not_found ->
-      new Data.info
-        current_window
-        (Data.new_time 0 0 1)
-        (Data.new_time 0 0 1)
-        (current_window == current_client))
-  |> Utils.writecsv;
+  let updated_procs =
+    current_clients
+    |> List.map (fun current_window ->
+      try
+        let matching_window =
+          List.find (fun (proc : Data.info) -> proc#get_name = current_window) procs
+        in
+        let is_active = current_window = current_client in
+        matching_window#set_is_active is_active;
+        matching_window#update_time
+          (Data.new_time 0 0 1)
+          (Data.new_time 0 0 (if is_active then 1 else 0));
+        matching_window
+      with
+      | Not_found ->
+        new Data.info
+          current_window
+          (Data.new_time 0 0 0)
+          (Data.new_time 0 0 0)
+          (current_window = current_client))
+  in
+  Data.pretty_print updated_procs;
+  Utils.writecsv updated_procs;
   Unix.sleep 1;
-  update_data_loop procs
+  update_data_loop updated_procs
 ;;
 
 let rec wait_forever () =
@@ -68,11 +74,10 @@ let start_socket_server () =
   Unix.connect sock (Unix.ADDR_UNIX (getSocketPath ()));
   (*
      |
-     |
-     |
-     |
   *)
-  let initial_processes = Utils.getPath () |> Utils.readcsv in
+  print_endline "arositen";
+  let initial_processes = Utils.get_path_today () |> Utils.readcsv in
+  print_endline "arositen";
   let _activewindow_thread = Thread.create (fun () -> socketloop_activewindow sock) () in
   let _update_stuff_thread =
     Thread.create (fun () -> update_data_loop initial_processes) ()

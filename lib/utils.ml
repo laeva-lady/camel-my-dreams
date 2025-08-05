@@ -2,10 +2,9 @@ let readcsv path_to_csv : Data.info list =
   path_to_csv |> Csv.load |> List.map Data.info_of_list
 ;;
 
-let getPath () =
-  let homeDir = Sys.getenv "HOME" in
-  let cacheDir = ".cache/camel-my-dreams/daily/" in
-  homeDir ^ "/" ^ cacheDir
+let is_directory path =
+  try Sys.is_directory path with
+  | Sys_error _ -> false
 ;;
 
 let create_file_if_not_exists filename =
@@ -19,7 +18,17 @@ let create_file_if_not_exists filename =
   | Sys_error _ -> ()
 ;;
 
-let writecsv (pinfos : Data.info list) =
+let create_newdir path perm = if not (is_directory path) then Sys.mkdir path perm
+
+let getPath () =
+  let homeDir = Sys.getenv "HOME" in
+  let cacheDir = ".cache/camel-my-dreams/" in
+  let path = homeDir ^ "/" ^ cacheDir in
+  create_newdir path 0o777;
+  path
+;;
+
+let get_path_today () =
   let now = Unix.gettimeofday () in
   let times = Unix.localtime now in
   let date =
@@ -31,6 +40,11 @@ let writecsv (pinfos : Data.info list) =
   in
   let file = getPath () ^ date ^ ".csv" in
   create_file_if_not_exists file;
+  file
+;;
+
+let writecsv (pinfos : Data.info list) =
+  let file = get_path_today () in
   let out_channel = open_out file in
   pinfos
   |> Data.csv_string_of_infos

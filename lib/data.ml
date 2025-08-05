@@ -16,8 +16,13 @@ let time_of_list xs =
 ;;
 
 let time_of_string s =
-  let _ = s in
-  new_time 0 0 0
+  match String.split_on_char ':' s with
+  | [ h; m; s ] ->
+    let hour = int_of_string h in
+    let minute = int_of_string m in
+    let second = int_of_string s in
+    new_time hour minute second
+  | _ -> new_time 0 0 0
 ;;
 
 let compare_time (t1 : time) (t2 : time) : int =
@@ -44,7 +49,7 @@ let green = "\027[32m"
 let red = "\027[31m"
 let reset = "\027[0m"
 let yellow = "\027[33m"
-let width = 90
+let width = 82
 let text = "Camel my dreams"
 let pad_total = width - String.length text - 2 (* for the pipes *)
 let pad_left = pad_total / 2
@@ -67,9 +72,9 @@ class info name_input ut_input at_input is_active =
     val mutable active_time : time = at_input
     val mutable is_active : bool = is_active
 
-    method update_time new_ut new_at =
-      usage_time <- new_ut;
-      active_time <- new_at
+    method update_time diff_ut diff_at =
+      usage_time <- add_time usage_time diff_ut;
+      active_time <- add_time active_time diff_at
 
     method get_strings = [ name; string_of_time usage_time; string_of_time active_time ]
     method get_name = name
