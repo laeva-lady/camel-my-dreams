@@ -1,2 +1,3 @@
-- doesn't need to read the file in update loop every time
-- client and server is the same now, add a flag to print only ig
+# Camel my dreams
+
+'complete' rewrite of [Welldream](https://github.com/laeva-lady/welldream)
