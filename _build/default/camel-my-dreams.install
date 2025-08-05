@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/camel-my-dreams/META"
+  "_build/install/default/lib/camel-my-dreams/dune-package"
+  "_build/install/default/lib/camel-my-dreams/opam"
+]
+bin: [
+  "_build/install/default/bin/camel-my-dreams"
+]

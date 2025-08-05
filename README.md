@@ -1,0 +1,2 @@
+- doesn't need to read the file in update loop every time
+- client and server is the same now, add a flag to print only ig

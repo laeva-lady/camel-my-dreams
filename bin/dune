@@ -1,0 +1,4 @@
+(executable
+ (public_name camel-my-dreams)
+ (name main)
+ (libraries camel_my_dreams))
